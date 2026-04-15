@@ -3,63 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星幻指揮中心 - 數據儀表板</title>
+    <title>星幻指揮中心 - 儀表板</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(135deg, #fff5f8 0%, #f0f4ff 100%); min-height: 100vh; margin: 0; }
-        .glass-panel { background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 1.5rem; }
-        .metallic-text { background: linear-gradient(to right, #60a5fa, #f472b6, #c084fc); -webkit-background-clip: text; color: transparent; font-weight: 900; }
-        .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-align: center; display: inline-block; min-width: 60px; }
-        .badge-pilot { background: #bae6fd; color: #0284c7; }
-        .badge-engineer { background: #e9d5ff; color: #7e22ce; }
-        .badge-scientist { background: #fbcfe8; color: #db2777; }
-        .stat-card { transition: transform 0.3s ease; }
-        .stat-card:hover { transform: translateY(-5px); }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; margin: 0; min-height: 100vh; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 1rem; }
+        .metallic { background: linear-gradient(90deg, #3b82f6, #ec4899); -webkit-background-clip: text; color: transparent; font-weight: 800; }
+        .badge { padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .bg-pilot { background: #e0f2fe; color: #0369a1; }
+        .bg-engineer { background: #f3e8ff; color: #7e22ce; }
+        .bg-scientist { background: #fce7f3; color: #be185d; }
     </style>
 </head>
-<body class="p-4 sm:p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
-        <div class="glass-panel p-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+<body class="p-4 md:p-10">
+    <div class="max-w-6xl mx-auto space-y-6">
+        <div class="glass p-6 flex flex-col md:flex-row justify-between items-center shadow-sm">
             <div>
-                <h2 style="font-family:'Orbitron'" class="text-sky-400 tracking-widest text-xs font-bold uppercase">Command Center</h2>
-                <h1 class="text-3xl sm:text-4xl metallic-text tracking-tighter">星幻即時指揮中心</h1>
+                <p style="font-family:'Orbitron'" class="text-blue-500 text-xs tracking-widest uppercase">Live Dashboard</p>
+                <h1 class="text-3xl metallic">星幻即時指揮中心</h1>
             </div>
-            <button onclick="fetchData()" class="px-6 py-3 bg-white text-pink-500 font-bold rounded-xl shadow-lg hover:shadow-pink-200 transition-all active:scale-95">
-                同步星際數據
-            </button>
+            <button onclick="fetchData()" class="mt-4 md:mt-0 px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">同步數據</button>
         </div>
 
-        <div id="loadingScreen" class="text-center py-20">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-pink-500 border-t-transparent mb-4"></div>
-            <p class="text-pink-400 font-bold">正在解碼來自 Google Sheets 的信號...</p>
-        </div>
-
-        <div id="dashboardContent" class="hidden space-y-6">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-                <div class="glass-panel p-6 stat-card"><p class="text-gray-400 text-sm font-bold uppercase">Total</p><h3 class="text-4xl font-black" id="totalCount">0</h3></div>
-                <div class="glass-panel p-6 stat-card border-l-4 border-sky-400"><p class="text-sky-500 text-sm font-bold">領航員</p><h3 class="text-4xl font-black text-sky-600" id="pilotCount">0</h3></div>
-                <div class="glass-panel p-6 stat-card border-l-4 border-purple-400"><p class="text-purple-500 text-sm font-bold">工程師</p><h3 class="text-4xl font-black text-purple-600" id="engineerCount">0</h3></div>
-                <div class="glass-panel p-6 stat-card border-l-4 border-pink-400"><p class="text-pink-500 text-sm font-bold">科學家</p><h3 class="text-4xl font-black text-pink-600" id="scientistCount">0</h3></div>
+        <div id="loading" class="text-center py-10 text-blue-500 font-bold">同步星際資料中...</div>
+        
+        <div id="content" class="hidden space-y-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div class="glass p-4 shadow-sm"><p class="text-gray-500 text-sm">總申請</p><p class="text-3xl font-bold" id="total">0</p></div>
+                <div class="glass p-4 shadow-sm border-b-4 border-blue-400"><p class="text-blue-500 text-sm">領航員</p><p class="text-3xl font-bold" id="p_count">0</p></div>
+                <div class="glass p-4 shadow-sm border-b-4 border-purple-400"><p class="text-purple-500 text-sm">工程師</p><p class="text-3xl font-bold" id="e_count">0</p></div>
+                <div class="glass p-4 shadow-sm border-b-4 border-pink-400"><p class="text-pink-500 text-sm">科學家</p><p class="text-3xl font-bold" id="s_count">0</p></div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="glass-panel p-6 flex flex-col items-center">
-                    <h3 class="font-bold mb-4 text-gray-700">人力配置佔比</h3>
-                    <div class="w-full max-w-[240px] aspect-square"><canvas id="roleChart"></canvas></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-6 flex flex-col items-center">
+                    <h3 class="font-bold mb-4">人力佔比</h3>
+                    <div class="w-48 h-48"><canvas id="myChart"></canvas></div>
                 </div>
-                <div class="glass-panel p-6 lg:col-span-2 overflow-x-auto">
-                    <h3 class="font-bold mb-4 text-gray-700">最新登錄成員</h3>
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="text-pink-500 border-b border-pink-100 text-sm">
-                                <th class="p-3">通訊時間</th>
-                                <th class="p-3">成員姓名</th>
-                                <th class="p-3 text-center">派駐職位</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody"></tbody>
+                <div class="glass p-6 md:col-span-2 overflow-x-auto">
+                    <h3 class="font-bold mb-4 text-gray-700">最新成員清單</h3>
+                    <table class="w-full text-sm">
+                        <thead><tr class="text-left text-gray-400 border-b">
+                            <th class="pb-2">成員姓名</th><th class="pb-2">通訊代碼</th><th class="pb-2">派駐職位</th>
+                        </tr></thead>
+                        <tbody id="list" class="divide-y divide-gray-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -67,96 +56,54 @@
     </div>
 
     <script>
-        // 已經為你填入專屬的網址，並加上 get_data 參數
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbOEVtSZ7GbuI30JX-ge2_X9az1J9hu_sB0VP4M7gWYD9acsPkkHr_Q8M7wrYbfaYwW/exec?get_data=1';
-        
-        let chartInstance = null;
+        const api = 'https://script.google.com/macros/s/AKfycbxOEVtSZ7GbuI30JX-ge2_X9az1J9hu_sB0VP4M7gWYD9acsPkkHr_Q8M7wrYbfaYwW/exec?get_data=1';
+        let chart = null;
 
         function fetchData() {
-            document.getElementById('loadingScreen').classList.remove('hidden');
-            document.getElementById('dashboardContent').classList.add('hidden');
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
             
-            fetch(scriptURL)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.result === 'success') {
-                        render(res.data);
-                    } else {
-                        console.error('API Error:', res.error);
-                        alert('數據解碼失敗，請檢查試算表欄位名稱。');
-                    }
-                })
-                .catch(err => {
-                    console.error('Fetch Error:', err);
-                    alert('無法連線至指揮中心，請確認 Script 已正確部署為「所有人」。');
-                })
-                .finally(() => {
-                    document.getElementById('loadingScreen').classList.add('hidden');
-                    document.getElementById('dashboardContent').classList.remove('hidden');
-                });
+            fetch(api).then(r => r.json()).then(res => {
+                if(res.result === 'success') render(res.data);
+            }).finally(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            });
         }
 
         function render(data) {
-            let counts = { pilot: 0, engineer: 0, scientist: 0 };
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
+            let c = { pilot: 0, engineer: 0, scientist: 0 };
+            const list = document.getElementById('list');
+            list.innerHTML = '';
 
-            // 倒序排列，讓最新的顯示在最上面
-            [...data].reverse().forEach(item => {
-                const r = String(item.role || "").toLowerCase();
-                let badgeClass = 'bg-gray-200 text-gray-600';
-                
-                if (r.includes('pilot') || r.includes('領航')) { counts.pilot++; badgeClass = 'badge-pilot'; }
-                else if (r.includes('engineer') || r.includes('工程')) { counts.engineer++; badgeClass = 'badge-engineer'; }
-                else if (r.includes('scientist') || r.includes('科學')) { counts.scientist++; badgeClass = 'badge-scientist'; }
+            data.reverse().forEach(item => {
+                const role = String(item.role || "");
+                let cls = "bg-gray-100";
+                if(role.includes("領航")) { c.pilot++; cls="bg-pilot"; }
+                else if(role.includes("工程")) { c.engineer++; cls="bg-engineer"; }
+                else if(role.includes("科學")) { c.scientist++; cls="bg-scientist"; }
 
                 const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-50 text-sm hover:bg-white/60 transition-colors";
-                
-                const date = item.timestamp ? new Date(item.timestamp) : new Date();
-                const timeStr = `${date.getMonth()+1}/${date.getDate()} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
-                
-                tr.innerHTML = `
-                    <td class="p-3 text-gray-400 font-mono text-xs">${timeStr}</td>
-                    <td class="p-3 font-bold text-gray-700">${item.name || '未知成員'}</td>
-                    <td class="p-3 text-center"><span class="badge ${badgeClass}">${item.role || '未定'}</span></td>
-                `;
-                tbody.appendChild(tr);
+                tr.innerHTML = `<td class="py-3 font-bold text-gray-700">${item.name || '未填'}</td>
+                                <td class="py-3 text-gray-500">${item.phone || '-'}</td>
+                                <td class="py-3"><span class="badge ${cls}">${item.role || '未定'}</span></td>`;
+                list.appendChild(tr);
             });
 
-            document.getElementById('totalCount').innerText = data.length;
-            document.getElementById('pilotCount').innerText = counts.pilot;
-            document.getElementById('engineerCount').innerText = counts.engineer;
-            document.getElementById('scientistCount').innerText = counts.scientist;
-            updateChart(counts);
-        }
-
-        function updateChart(c) {
-            const ctx = document.getElementById('roleChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
+            document.getElementById('total').innerText = data.length;
+            document.getElementById('p_count').innerText = c.pilot;
+            document.getElementById('e_count').innerText = c.engineer;
+            document.getElementById('s_count').innerText = c.scientist;
+            
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
                 type: 'doughnut',
-                data: {
-                    labels: ['領航員','工程師','科學家'],
-                    datasets: [{
-                        data: [c.pilot, c.engineer, c.scientist],
-                        backgroundColor: ['#38bdf8', '#c084fc', '#f472b6'],
-                        hoverOffset: 10,
-                        borderWidth: 0
-                    }]
-                },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } 
-                    } 
-                }
+                data: { labels: ['領航員','工程師','科學家'], datasets: [{ data: [c.pilot, c.engineer, c.scientist], backgroundColor: ['#38bdf8','#c084fc','#f472b6'], borderWidth: 0 }] },
+                options: { plugins: { legend: { position: 'bottom' } } }
             });
         }
-
         window.onload = fetchData;
     </script>
 </body>
 </html>
-
