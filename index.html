@@ -2,108 +2,89 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星幻指揮中心 - 儀表板</title>
+    <title>星幻指揮中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; margin: 0; min-height: 100vh; }
-        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); border-radius: 1rem; }
-        .metallic { background: linear-gradient(90deg, #3b82f6, #ec4899); -webkit-background-clip: text; color: transparent; font-weight: 800; }
-        .badge { padding: 2px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .bg-pilot { background: #e0f2fe; color: #0369a1; }
+        body { background: #f1f5f9; font-family: sans-serif; }
+        .card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .badge { padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: bold; }
+        .bg-pilot { background: #bae6fd; color: #0369a1; }
         .bg-engineer { background: #f3e8ff; color: #7e22ce; }
         .bg-scientist { background: #fce7f3; color: #be185d; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-    <div class="max-w-6xl mx-auto space-y-6">
-        <div class="glass p-6 flex flex-col md:flex-row justify-between items-center shadow-sm">
-            <div>
-                <p style="font-family:'Orbitron'" class="text-blue-500 text-xs tracking-widest uppercase">Live Dashboard</p>
-                <h1 class="text-3xl metallic">星幻即時指揮中心</h1>
-            </div>
-            <button onclick="fetchData()" class="mt-4 md:mt-0 px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">同步數據</button>
+<body class="p-6">
+    <div class="max-w-5xl mx-auto space-y-6">
+        <h1 class="text-3xl font-black text-slate-800 text-center">星幻即時指揮中心</h1>
+        
+        <div id="status" class="text-center text-blue-500 font-bold">數據傳輸中...</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+            <div class="card"><p class="text-sm text-slate-500">總數</p><p id="t" class="text-3xl font-bold">0</p></div>
+            <div class="card border-b-4 border-sky-400"><p class="text-sky-600">Pilot</p><p id="p" class="text-3xl font-bold">0</p></div>
+            <div class="card border-b-4 border-purple-400"><p class="text-purple-600">Engineer</p><p id="e" class="text-3xl font-bold">0</p></div>
+            <div class="card border-b-4 border-pink-400"><p class="text-pink-600">Scientist</p><p id="s" class="text-3xl font-bold">0</p></div>
         </div>
 
-        <div id="loading" class="text-center py-10 text-blue-500 font-bold">同步星際資料中...</div>
-        
-        <div id="content" class="hidden space-y-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                <div class="glass p-4 shadow-sm"><p class="text-gray-500 text-sm">總申請</p><p class="text-3xl font-bold" id="total">0</p></div>
-                <div class="glass p-4 shadow-sm border-b-4 border-blue-400"><p class="text-blue-500 text-sm">領航員</p><p class="text-3xl font-bold" id="p_count">0</p></div>
-                <div class="glass p-4 shadow-sm border-b-4 border-purple-400"><p class="text-purple-500 text-sm">工程師</p><p class="text-3xl font-bold" id="e_count">0</p></div>
-                <div class="glass p-4 shadow-sm border-b-4 border-pink-400"><p class="text-pink-500 text-sm">科學家</p><p class="text-3xl font-bold" id="s_count">0</p></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="card flex flex-col items-center">
+                <h3 class="font-bold mb-4">職位佔比</h3>
+                <canvas id="chart"></canvas>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass p-6 flex flex-col items-center">
-                    <h3 class="font-bold mb-4">人力佔比</h3>
-                    <div class="w-48 h-48"><canvas id="myChart"></canvas></div>
-                </div>
-                <div class="glass p-6 md:col-span-2 overflow-x-auto">
-                    <h3 class="font-bold mb-4 text-gray-700">最新成員清單</h3>
-                    <table class="w-full text-sm">
-                        <thead><tr class="text-left text-gray-400 border-b">
-                            <th class="pb-2">成員姓名</th><th class="pb-2">通訊代碼</th><th class="pb-2">派駐職位</th>
-                        </tr></thead>
-                        <tbody id="list" class="divide-y divide-gray-50"></tbody>
-                    </table>
-                </div>
+            <div class="card md:col-span-2 overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead><tr class="border-b text-slate-400">
+                        <th class="py-2">姓名</th><th class="py-2">職位</th>
+                    </tr></thead>
+                    <tbody id="list"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        const api = 'https://script.google.com/macros/s/AKfycbxOEVtSZ7GbuI30JX-ge2_X9az1J9hu_sB0VP4M7gWYD9acsPkkHr_Q8M7wrYbfaYwW/exec?get_data=1';
-        let chart = null;
+        const url = 'https://script.google.com/macros/s/AKfycbxOEVtSZ7GbuI30JX-ge2_X9az1J9hu_sB0VP4M7gWYD9acsPkkHr_Q8M7wrYbfaYwW/exec?get_data=1';
+        let myChart = null;
 
-        function fetchData() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('content').style.display = 'none';
-            
-            fetch(api).then(r => r.json()).then(res => {
-                if(res.result === 'success') render(res.data);
-            }).finally(() => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+        function update() {
+            fetch(url).then(r => r.json()).then(res => {
+                const data = res.data;
+                let c = { p: 0, e: 0, s: 0 };
+                const list = document.getElementById('list');
+                list.innerHTML = '';
+
+                data.reverse().forEach(i => {
+                    const r = String(i.role).trim();
+                    let cls = "bg-slate-100";
+                    if(/pilot/i.test(r)) { c.p++; cls="bg-pilot"; }
+                    else if(/engineer/i.test(r)) { c.e++; cls="bg-engineer"; }
+                    else if(/scientist/i.test(r)) { c.s++; cls="bg-scientist"; }
+
+                    list.innerHTML += `<tr class="border-b">
+                        <td class="py-3 font-medium">${i.name}</td>
+                        <td class="py-3"><span class="badge ${cls}">${r}</span></td>
+                    </tr>`;
+                });
+
+                document.getElementById('t').innerText = data.length;
+                document.getElementById('p').innerText = c.p;
+                document.getElementById('e').innerText = c.e;
+                document.getElementById('s').innerText = c.s;
+                draw(c);
+                document.getElementById('status').classList.add('hidden');
             });
         }
 
-        function render(data) {
-            let c = { pilot: 0, engineer: 0, scientist: 0 };
-            const list = document.getElementById('list');
-            list.innerHTML = '';
-
-            data.reverse().forEach(item => {
-                const role = String(item.role || "");
-                let cls = "bg-gray-100";
-                if(role.includes("領航")) { c.pilot++; cls="bg-pilot"; }
-                else if(role.includes("工程")) { c.engineer++; cls="bg-engineer"; }
-                else if(role.includes("科學")) { c.scientist++; cls="bg-scientist"; }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td class="py-3 font-bold text-gray-700">${item.name || '未填'}</td>
-                                <td class="py-3 text-gray-500">${item.phone || '-'}</td>
-                                <td class="py-3"><span class="badge ${cls}">${item.role || '未定'}</span></td>`;
-                list.appendChild(tr);
-            });
-
-            document.getElementById('total').innerText = data.length;
-            document.getElementById('p_count').innerText = c.pilot;
-            document.getElementById('e_count').innerText = c.engineer;
-            document.getElementById('s_count').innerText = c.scientist;
-            
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
+        function draw(c) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: ['領航員','工程師','科學家'], datasets: [{ data: [c.pilot, c.engineer, c.scientist], backgroundColor: ['#38bdf8','#c084fc','#f472b6'], borderWidth: 0 }] },
-                options: { plugins: { legend: { position: 'bottom' } } }
+                data: { labels:['Pilot','Engineer','Scientist'], datasets:[{ data:[c.p, c.e, c.s], backgroundColor:['#38bdf8','#c084fc','#f472b6'] }] }
             });
         }
-        window.onload = fetchData;
+        window.onload = update;
     </script>
 </body>
 </html>
