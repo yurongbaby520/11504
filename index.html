@@ -3,41 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <title>星幻指揮中心</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background: #f1f5f9; font-family: sans-serif; }
-        .card { background: white; border-radius: 1rem; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
-        .badge { padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: bold; }
-        .bg-pilot { background: #bae6fd; color: #0369a1; }
-        .bg-engineer { background: #f3e8ff; color: #7e22ce; }
-        .bg-scientist { background: #fce7f3; color: #be185d; }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="p-6">
-    <div class="max-w-5xl mx-auto space-y-6">
-        <h1 class="text-3xl font-black text-slate-800 text-center">星幻即時指揮中心</h1>
+<body class="bg-slate-50 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-bold text-center mb-6">星幻即時指揮中心</h1>
         
-        <div id="status" class="text-center text-blue-500 font-bold">數據傳輸中...</div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-            <div class="card"><p class="text-sm text-slate-500">總數</p><p id="t" class="text-3xl font-bold">0</p></div>
-            <div class="card border-b-4 border-sky-400"><p class="text-sky-600">Pilot</p><p id="p" class="text-3xl font-bold">0</p></div>
-            <div class="card border-b-4 border-purple-400"><p class="text-purple-600">Engineer</p><p id="e" class="text-3xl font-bold">0</p></div>
-            <div class="card border-b-4 border-pink-400"><p class="text-pink-600">Scientist</p><p id="s" class="text-3xl font-bold">0</p></div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl shadow-sm text-center">
+                <div class="text-xs text-slate-400 font-bold uppercase">Total</div>
+                <div id="t" class="text-2xl font-black">0</div>
+            </div>
+            <div class="bg-sky-50 p-4 rounded-xl shadow-sm text-center border-b-4 border-sky-400">
+                <div class="text-xs text-sky-600 font-bold">Pilot</div>
+                <div id="p" class="text-2xl font-black text-sky-700">0</div>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-xl shadow-sm text-center border-b-4 border-purple-400">
+                <div class="text-xs text-purple-600 font-bold">Engineer</div>
+                <div id="e" class="text-2xl font-black text-purple-700">0</div>
+            </div>
+            <div class="bg-pink-50 p-4 rounded-xl shadow-sm text-center border-b-4 border-pink-400">
+                <div class="text-xs text-pink-600 font-bold">Scientist</div>
+                <div id="s" class="text-2xl font-black text-pink-700">0</div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="card flex flex-col items-center">
-                <h3 class="font-bold mb-4">職位佔比</h3>
-                <canvas id="chart"></canvas>
+            <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center">
+                <h3 class="font-bold mb-4 text-sm text-slate-500">職位比例</h3>
+                <div class="w-full"><canvas id="chart"></canvas></div>
             </div>
-            <div class="card md:col-span-2 overflow-x-auto">
+            <div class="bg-white p-6 rounded-xl shadow-sm md:col-span-2">
                 <table class="w-full text-left">
-                    <thead><tr class="border-b text-slate-400">
-                        <th class="py-2">姓名</th><th class="py-2">職位</th>
-                    </tr></thead>
-                    <tbody id="list"></tbody>
+                    <thead class="text-slate-400 text-sm border-b">
+                        <tr><th class="pb-2">姓名</th><th class="pb-2">職位</th></tr>
+                    </thead>
+                    <tbody id="list" class="text-slate-700"></tbody>
                 </table>
             </div>
         </div>
@@ -49,21 +51,22 @@
 
         function update() {
             fetch(url).then(r => r.json()).then(res => {
-                const data = res.data;
+                const data = res.data || [];
                 let c = { p: 0, e: 0, s: 0 };
                 const list = document.getElementById('list');
                 list.innerHTML = '';
 
                 data.reverse().forEach(i => {
-                    const r = String(i.role).trim();
-                    let cls = "bg-slate-100";
-                    if(/pilot/i.test(r)) { c.p++; cls="bg-pilot"; }
-                    else if(/engineer/i.test(r)) { c.e++; cls="bg-engineer"; }
-                    else if(/scientist/i.test(r)) { c.s++; cls="bg-scientist"; }
+                    const r = String(i.role || "").toLowerCase().trim();
+                    let badge = "bg-slate-100 text-slate-500";
+                    
+                    if (r.indexOf('pilot') > -1) { c.p++; badge = "bg-sky-100 text-sky-700"; }
+                    else if (r.indexOf('engineer') > -1) { c.e++; badge = "bg-purple-100 text-purple-700"; }
+                    else if (r.indexOf('scientist') > -1) { c.s++; badge = "bg-pink-100 text-pink-700"; }
 
                     list.innerHTML += `<tr class="border-b">
-                        <td class="py-3 font-medium">${i.name}</td>
-                        <td class="py-3"><span class="badge ${cls}">${r}</span></td>
+                        <td class="py-3 font-medium">${i.name || 'Unknown'}</td>
+                        <td class="py-3"><span class="px-3 py-1 rounded-full text-xs font-bold ${badge}">${i.role}</span></td>
                     </tr>`;
                 });
 
@@ -71,20 +74,23 @@
                 document.getElementById('p').innerText = c.p;
                 document.getElementById('e').innerText = c.e;
                 document.getElementById('s').innerText = c.s;
-                draw(c);
-                document.getElementById('status').classList.add('hidden');
-            });
+                
+                const ctx = document.getElementById('chart').getContext('2d');
+                if(myChart) myChart.destroy();
+                myChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pilot', 'Engineer', 'Scientist'],
+                        datasets: [{ data: [c.p, c.e, c.s], backgroundColor: ['#38bdf8', '#c084fc', '#f472b6'], borderWidth: 0 }]
+                    },
+                    options: { plugins: { legend: { position: 'bottom' } } }
+                });
+            }).catch(err => console.error("Fetch error:", err));
         }
 
-        function draw(c) {
-            const ctx = document.getElementById('chart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: { labels:['Pilot','Engineer','Scientist'], datasets:[{ data:[c.p, c.e, c.s], backgroundColor:['#38bdf8','#c084fc','#f472b6'] }] }
-            });
-        }
         window.onload = update;
+        // 每 30 秒自動重新抓取一次
+        setInterval(update, 30000);
     </script>
 </body>
 </html>
